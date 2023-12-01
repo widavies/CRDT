@@ -1,4 +1,6 @@
-﻿namespace CRDT;
+﻿using System.Net.Http.Headers;
+
+namespace CRDT;
 
 // Problems using timestamps in distributed systems
 // - Clock skews, bugs, invalid time values, etc.
@@ -35,8 +37,17 @@ public class VersionVector {
         _counter.Merge(other._counter);
     }
 
-    public void Increment(int replicaId) {
+    public int Increment(int replicaId) {
         _counter.Increment(replicaId);
+        return _counter.Values[replicaId];
+    }
+
+    public int? GetVersionForReplica(int replicaId) {
+        if(_counter.Values.TryGetValue(replicaId, out var version)) {
+            return version;
+        } else {
+            return null;
+        }
     }
     
     public VersionVectorComparisonResult Compare(VersionVector other) {
